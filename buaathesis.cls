@@ -53,10 +53,13 @@ The LaTeX template for thesis of BUAA]
 % 不仅设置了粗体为黑体，斜体为楷体，还兼容了winfonts和adobefonts
 % 直接设置反而会在只有adobefonts的情况下报错
 % \setCJKmainfont{宋体}
-\setCJKfamilyfont{hwxingkai}{STXingkai}
+%\setCJKfamilyfont{hwxingkai}{STXingkai}
+%\newcommand{\hwxingkai}{\CJKfamily{hwxingkai}}
+%\newcommand{\xiaochuhao}{\fontsize{32pt}{\baselineskip}\selectfont}
+
+\setCJKfamilyfont{hwxingkai}{STXingkai-SC-Bold}
 \newcommand{\hwxingkai}{\CJKfamily{hwxingkai}}
 \newcommand{\xiaochuhao}{\fontsize{32pt}{\baselineskip}\selectfont}
-
 %%%%%%%%%% color %%%%%%%%%%
 % 颜色设置
 
