@@ -1,5 +1,17 @@
 % !Mode:: "TeX:UTF-8"
 \documentclass[master,openright,twoside,color]{buaathesis}
+\usepackage{epsfig,endnotes}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx,subfigure}
+\DeclareGraphicsExtensions{.eps,.ps,.eps.gz,.ps.gz,.eps.Z}
+\usepackage{stfloats}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{multirow}
+
 \begin{document}
 
 % 用户信息
@@ -25,13 +37,25 @@
 \pagestyle{mainmatter}
 
 % 正文
-\include{data/chapter1-intro}
-\include{data/chapter2-config}
-\include{data/chapter3-download}
-\include{data/chapter4-basic}
-\include{data/chapter5-usage}
-\include{data/chapter6-implement}
-\include{data/chapter7-conclusion}
+\include{cpts/cpt1-intro}
+\include{cpts/cpt2-bg}
+\include{cpts/cpt3-model}
+\include{cpts/cpt4-val}
+\include{cpts/cpt5-conclude}
+
+%选题背景与意义
+%文献以及相关综述
+%建模过程i
+%验证
+%结论
+
+%\include{data/chapter1-intro}
+%\include{data/chapter2-config}
+%\include{data/chapter3-download}
+%\include{data/chapter4-basic}
+%\include{data/chapter5-usage}
+%\include{data/chapter6-implement}
+%\include{data/chapter7-conclusion}
 
 % 参考文献
 \include{data/reference}
