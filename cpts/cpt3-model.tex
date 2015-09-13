@@ -1,45 +1,212 @@
 \chapter{海量数据分析与车辆移动模型建立}
 
-本文的主要研究目标有：
+<建模规则概述>
 
-   \textbf{发现海量交通数据中的出租车移动特征。}包括车辆移动特性与时间、空间以及自身状态的关系。本文从实际数据出发，观察车辆轨迹随时间，空间的变化情况。分析了车辆速度，持续时长等指标随时间，空间，车辆状态变化是否存在规律性。基于这些分析，建立移动模型。
-   
-   \textbf{建立移动模型.}宏观方面，建立区域转移矩阵，规定车辆从当前区域到其他区域的移动概率分布。最简单的区域定义是将场景划分成规则的四边形，我们认为这样不能体现出不同区域在出租车在地理上的不同点。
-因此，我们将区域划分为细粒度的网格，对相邻的具有相似上客（下客）量的网格聚类为区域。
-微观方面，抽象实际地图，实现基于地图的最短路径寻径算法。从实际数据中分时间段获得速度分布，拟合获得对应时段的速度分布函数，产生节点运动速度。因为速度字段是GPS采样数据，不准确，为了减小误差，我们采用一段重车（空车）距离除以时间的方法获取速度，然后研究其速度的分布情况。
-基于ONE (Opportunity network environment )仿真平台，实现移动模型。
+\section{出租车数据介绍}
+从“北京智能交通系统关键技术研究与应用示范项目”获取的数据集，该项目以支持智能交通系统工程建设、解决关键技术难题、提升交通科技发展水平和自主创新能力、为实现新北京交通体系和奥运会的顺利召开提供支持与保障为目标。其核心研发内容之一，是实时采集、存储、处理多源异构海量交通数据、形成动态交通信息以及决策支持的分布式处理系统。该项目涉及出租车为12096辆，约占北京市出租车总数的$18\%$，对五环内（含五环）次干路以上路网的覆盖率达到$90\%$以上。通过这些出租车上安装的GPS定位装置，每隔约60s上传一次自己的经纬度位置、速度、方向信息到数据中心。每天产生的数据量约1300万条。
+数据记录格式如表\ref{table_dataset}所示。
 
-  \textbf{验证模型的有效性.}
-通过文献阅读，我们选取了两个角度的指标，分别是出入度和接触指标。以此来验证模型是否具有较强的真实性。
+\begin{table}
+\caption{北京市出租车数据格式和字段意义}\label{table_dataset}
+\begin{tabular}{l|c}
+\hline
+列名&	说明\\
+\hline
+调度中心ID&	4个ASCII字符；\\
+\hline
+出租公司ID&	标记出租车为何公司所有.\\
+\hline
+车辆ID&	使用11个ASCII字符；\\
+\hline
+时间标签&	使用GMT时间格式共14个ASCII字符，格式为（YYYYMMDDHHMMSS）；\\
+\hline
+84坐标系经度&	最长为11个ASCII字符，变长；\\
+\hline
+84坐标系纬度&	最长为10个ASCII字符，变长；\\
+\hline
+02坐标系经度&	一般为9个ASCII字符，除以3686400（1024*3600）后变为通用经度坐标；\\
+\hline
+02坐标系纬度&	一般为9个ASCII字符，除以3686400（1024*3600）后变为通用纬度坐标；\\
+\hline
+速度&	单位为公里/小时，最长为3个ASCII字符，变长；\\
+\hline
+方向&	以正北为0度，顺时针方向增大，为0~360角度，最长为3个ASCII字符，变长;\\
+\hline
+状态&	为1个ASCII字符，数值型字符，包括空载、满载等状态。\\
+\hline
+事件（event）&	为1个ASCII字符，数值型字符，包括上下车、开锁车门等。\\
+\hline
+高度&	两个ASCII字符，固定值为50，未使用\\
+\hline
+\end{tabular}
+\end{table}
 
 
-根据以上研究目标，本文的研究内容也可以分为以下三部分。
+
+\section{出租车行为假设}
+
+\begin{assumption}
+\label{assuption_1}
+车辆行为与其车辆状态有关。
+\end{assumption}
+
+当一辆出租车处于载客状态时，它的目的地是确定的，其速度会相对增加。相反的，当一辆出租车处于空载状态时，出租车可能会减速甚至停靠在路边来寻找或等待可能的客人。这样，出租车的行为，例如车辆速度和状态持续时间都会随着车辆状态的变化而变化。
+
+\begin{assumption}
+\label{assuption_2}
+车辆的行为与其时间因素有关。
+\end{assumption}
+
+车辆在不同时间段的上下客的数量可能与时间服从一定的规则。例如，晚上的客人数量会相对于白天的客人有所减少。其与时间的相关性还有可能体现在以下几个方面。
+
 \begin{itemize}
-  \item 发现海量交通数据中的出租车移动特征：
-  \begin{itemize}
-  \item 宏观统计出租车整体的速度、各个状态的速度、状态持续时间等。
-  \item 统计各个时段出租车的分布情况，以及载客、下客事件的分布情况。
-  \end{itemize}
- \item 基于统计规律，建立移动模型：
- \begin{itemize}
- \item 探究车辆载客和空载区域的不同，对区域进行聚类，分别划分载客区域集和下客区域集。
- \item 计算载客区域到下客区域的转移概率以及下客区域到载客区域的转移概率。
- \item 对出租车载客状态和空车状态的速度进行建模。
- \item 确定出租车的起点和目的地，确定寻径策略，拟采取的寻径策略是最短路径算法。
- \end{itemize}
- \item 验证模型的有效性：
-  \begin{itemize}
-  \item 选取多角度指标，对模型的有效性进行验证，拟从接触角度和节点分布角度对模型进行验证。
-  \item 与真实轨迹比较，确定出租车移动模型与实际的相似性。
-  \item 与其他移动模型比较，确定基于海量数据挖掘的移动模型在准确性在优于其他移动模型。
- \end{itemize}
+\item 上下客的热点区域可能会随着时间变化而发生变化。例如凌晨发生载客和下客事件的数量都会相对减少，而到了白天，去往商场，写字楼等热门区域的出租车载客和下客的数量都会明显增多。
 \end{itemize}
 
+
+
+\begin{assumption}
+\label{assuption_3}
+车辆行为与其地理因素有关。
+\end{assumption}
+
+
+\begin{itemize}
+ \item \textbf{Claim 2:} The taxi behavior associates with time. The quantities of load/drop events may vary with time comforming to certain rules. For example, the quantity of passengers late in the night is relatively fewer than that of passengers during the daytime. 
+      \begin{enumerate}
+        \item The hotspots of load/drop events vary with time.
+        \item For the same time period during a day, the load/drop events distribute similar.
+      \end{enumerate}
+  \item \textbf{Claim 3:} The movement behavior of taxis associates with geographic features. When a taxi is occupied, the destination may be tend to certain geographic places, such as the airport. Meanwhile, when a taxi is vacant, its driver tends to look for some hot spots, where more people want to take a taxi, such as downtown areas. Therefore,
+      \begin{enumerate}
+        \item The destination selection of a taxi is influenced by different regions.
+        \item Events occur in different regions un-evenly, passenger drop and load events are distinct.
+      \end{enumerate}
+\end{itemize}
+Next, we analyze the speed, duration and passenger load/drop events distribution over the Beijing taxi traces to validate the three claims above.
+
 \section{海量数据分析}
+\subsection{出租车不同状态速度和持续时长分析}
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}
+[c]{c}
+\epsfysize=2in\epsfbox{figures/analysis/avgsp_vacant.eps} \\
+(a) vacant status \\ 
+\epsfysize=2in\epsfbox{figures/analysis/avgsp_occupied.eps} \\
+(b) occupied status \\
+\end{tabular}
+\caption{空载和载客状态下每小时的平均速度}\label{figure_avg_speed}
+\end{figure}
+\begin{figure}[ht]
+\centering
+\begin{tabular}
+[c]{cc}
+\epsfysize=1.5in\epsfbox{figures/analysis/speed6_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/analysis/speed6_1.eps} \\ 
+\multicolumn{2}{c}{6:00-8:00}\\
+\epsfysize=1.5in\epsfbox{figures/analysis/speed11_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/analysis/speed11_1.eps}\\
+\multicolumn{2}{c}{11:00-13:00}\\
+\epsfysize=1.5in\epsfbox{figures/analysis/speed17_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/analysis/speed17_1.eps}\\
+\multicolumn{2}{c}{17:00-19:00}\\
+\epsfysize=1.5in\epsfbox{figures/analysis/speed22_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/analysis/speed22_1.eps}\\
+\multicolumn{2}{c}{22:00-24:00}\\
+(a) vacant status& (b) occupied status\\
+\end{tabular}
+\caption{不同时间段，空载和载客状态下的速度分布情况}\label{figure_speed_distribution}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/assumption/durationdis.eps}\\
+\caption{状态持续时长分布}\label{figure_duration_for_each_status}
+\end{figure}
+
+
+\subsection{随时间变化的事件分布}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.65\textwidth]{figures/analysis/event_w_time.eps}\\
+\caption{Taxi event varied with time.}\label{figure_event_varied_w_t}
+\end{figure}
+
+
+
+\begin{table}[ht]
+\caption{随时间变化的事件数}\label{table_event_distribution_with_time}
+\centering
+\begin{tabular}{l|c|c}
+ \hline
+ 名称 & 下客事件数 & 上客事件数 \\
+  \hline
+  一周总数& 2,679,385&2,707,290\\
+  一小时内最大值&28,583 &28,130\\
+  一小时内最小值&861&918\\
+  波峰时段&11月4日, 19:00-20:00&11月4日, 19:00-20:00\\
+  波谷时段&11月3日, 4:00-5:00&11月3日, 4:00-5:00\\
+  \hline
+  \end{tabular}
+\end{table}
+
+
+
+
+\begin{figure}[ht]
+\centering
+\fbox{\includegraphics[width=0.4\textwidth]{figures/map.eps}}\\
+\caption{抽取地图}\label{figure_map}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}
+[c]{cc}
+\epsfysize=2in\epsfbox{figures/analysis/hotspots/hotspot_drop_04.eps} &
+\epsfysize=2in\epsfbox{figures/analysis/hotspots/hotspot_drop_19.eps} \\
+(a) drop events at 4:00-5:00 & (b) drop events at 19:00-20:00\\
+\epsfysize=2in\epsfbox{figures/analysis/hotspots/hotspot_load_04.eps} &
+\epsfysize=2in\epsfbox{figures/analysis/hotspots/hotspot_load_19.eps} \\
+(c) load events at 4:00-5:00 & (d) load events at 19:00-20:00\\
+\end{tabular}
+\caption{Taxi density for load/drop events in one hour.}\label{figure_taxi_density_for_one_hour}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}
+[c]{cccc}
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/1hotspot_20_drop_19.eps} &
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/3hotspot_20_drop_19.eps} &
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/5hotspot_20_drop_19.eps} &
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/6hotspot_20_drop_19.eps} \\
+(a) 11月1日，周二 &(b) 11月3日, 周四 &(c) 11月5日, 周六 &(d) 11月6日，周日 \\
+\multicolumn{4}{c}{下客事件热点区域}\\
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/1hotspot_20_load_19.eps} & 
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/3hotspot_20_load_19.eps} &
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/5hotspot_20_load_19.eps} &
+\epsfysize=1in\epsfbox{figures/analysis/hotspots/6hotspot_20_load_19.eps} \\
+(e) 11月1日，周二 &(f) 11月3日, 周四 &(g) 11月5日, 周六 &(h) 11月6日，周日 \\
+\multicolumn{4}{c}{载客事件热点区域}\\
+\end{tabular}
+\caption{出租车一小时内载客和下客事件的数量的区域分布}\label{figure_taxi_density_for_one_hour}
+\end{figure}
+
+
 \section{建立模型}
+
 移动模型定义了节点的运动模式$Paths:<p_1,p_2…,p_n>$，$p_i$的确定可以简化为两步，即,目的地点选择和从源地点到目的地点的移动模式。
 目的地点选择：节点的目的选择也与节点的当前状态有关。若节点处于载客状态。若当前状态为载客状态：针对载客事件将区域划分为不同的子区域，同理由下客事件分布将区域划分为不同的子区域。计算由载客子区域到下客子区域的转移概率矩阵和距离范围。然后由节点当前位置，决定下客位置。同理，节点处于下客状态时，由当前位置，和区域转移矩阵也可以计算得到载客的目的节点。
-\subsection{区域识别}
+
+
+\subsection{区域定义与识别}
 \input{cpts/sects/model-recognize}
 
 \subsection{区域转移概率}
@@ -51,5 +218,5 @@
 \subsection{速度建模}
 \input{cpts/sects/model-speed}
 
-\section{小结}
+\section{本章小结}
 \input{cpts/sects/model-conclud}
