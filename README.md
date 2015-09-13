@@ -1,3 +1,7 @@
+# 2015/9/13 assumptions 部分
+
+开始翻译assumptions
+
 # How to use it on mac
 
 在mac 修改字体配置文件
