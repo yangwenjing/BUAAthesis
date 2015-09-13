@@ -1,7 +1,7 @@
 # 2015/9/13 assumptions 部分
 
 开始翻译assumptions
-
+## 假设验证第一部分，和时间相关因素分析
 # How to use it on mac
 
 在mac 修改字体配置文件
