@@ -45,45 +45,32 @@
 
 \section{出租车行为假设}
 
-\begin{assumption}
-\label{assuption_1}
-车辆行为与其车辆状态有关。
+在日常生活中，我们打车可能需要走到小区或者学校门口，在车站，飞机厂等地也都设有专门的打车区域，基于我们日常生活经验和主观感受，我们提出了以下假设：
+%假设1
+\begin{assumption}\label{assuption_1}
+\textbf{车辆行为与其车辆状态有关。}当一辆出租车处于载客状态时，它的目的地是确定的，其速度会相对增加。相反的，当一辆出租车处于空载状态时，出租车可能会减速甚至停靠在路边来寻找或等待可能的客人。这样，出租车的行为，例如车辆速度和状态持续时间都会随着车辆状态的变化而变化。
 \end{assumption}
-
-当一辆出租车处于载客状态时，它的目的地是确定的，其速度会相对增加。相反的，当一辆出租车处于空载状态时，出租车可能会减速甚至停靠在路边来寻找或等待可能的客人。这样，出租车的行为，例如车辆速度和状态持续时间都会随着车辆状态的变化而变化。
-
-\begin{assumption}
-\label{assuption_2}
-车辆的行为与其时间因素有关。
-\end{assumption}
-
+%假设2
+\begin{assumption}\label{assuption_2}
+\textbf{车辆的行为与其时间因素有关。}
 车辆在不同时间段的上下客的数量可能与时间服从一定的规则。例如，晚上的客人数量会相对于白天的客人有所减少。其与时间的相关性还有可能体现在以下几个方面。
-
 \begin{itemize}
-\item 上下客的热点区域可能会随着时间变化而发生变化。例如凌晨发生载客和下客事件的数量都会相对减少，而到了白天，去往商场，写字楼等热门区域的出租车载客和下客的数量都会明显增多。
+\item 上下客的热点区域可能会随着时间变化而发生变化。
+\item 上下课的事件数可能会随着时间的变化而变化。例如凌晨发生载客和下客事件的数量都会相对减少，而到了白天，去往商场，写字楼等热门区域的出租车载客和下客的数量都会明显增多。
 \end{itemize}
-
-
-
-\begin{assumption}
-\label{assuption_3}
-车辆行为与其地理因素有关。
+\end{assumption}
+%假设3
+\begin{assumption}\label{assuption_3}
+\textbf{车辆行为与其地理因素有关。}
+当一辆出租车处于载客状态时，出租车的目的地更可能是某些特定区域，例如机场，火车站等。同时，当出租车为空载状态时，出租车更倾向于选择附近的热点区域，在这样的区域内，人们更倾向于打车，例如某些商业街，电影院。车辆行为与地理因素的相关性可能体现在以下方面：
+\begin{itemize}
+\item 出租车选择目的地点与出租车的当前位置有关。
+\item 事件在不同区域发生的概率不同。
+\item 不同事件在相同区域发生的概率不同。
+\end{itemize}
 \end{assumption}
 
-
-\begin{itemize}
- \item \textbf{Claim 2:} The taxi behavior associates with time. The quantities of load/drop events may vary with time comforming to certain rules. For example, the quantity of passengers late in the night is relatively fewer than that of passengers during the daytime. 
-      \begin{enumerate}
-        \item The hotspots of load/drop events vary with time.
-        \item For the same time period during a day, the load/drop events distribute similar.
-      \end{enumerate}
-  \item \textbf{Claim 3:} The movement behavior of taxis associates with geographic features. When a taxi is occupied, the destination may be tend to certain geographic places, such as the airport. Meanwhile, when a taxi is vacant, its driver tends to look for some hot spots, where more people want to take a taxi, such as downtown areas. Therefore,
-      \begin{enumerate}
-        \item The destination selection of a taxi is influenced by different regions.
-        \item Events occur in different regions un-evenly, passenger drop and load events are distinct.
-      \end{enumerate}
-\end{itemize}
-Next, we analyze the speed, duration and passenger load/drop events distribution over the Beijing taxi traces to validate the three claims above.
+接下来，为了验证我们的假设，我们基于北京市出租车数据对车辆的速度，状态持续时间，
 
 \section{海量数据分析}
 \subsection{出租车不同状态速度和持续时长分析}
