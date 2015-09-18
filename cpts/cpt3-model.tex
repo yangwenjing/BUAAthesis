@@ -42,7 +42,6 @@
 \end{table}
 
 
-
 \section{出租车行为假设}
 
 在日常生活中，我们打车可能需要走到小区或者学校门口，在车站，飞机厂等地也都设有专门的打车区域，基于我们日常生活经验和主观感受，我们提出了以下假设：
@@ -72,9 +71,18 @@
 
 接下来，为了验证我们的假设，我们基于北京市出租车数据对车辆的速度，状态持续时间，
 
-\section{海量数据分析}
-\subsection{出租车不同状态速度和持续时长分析}
+%从数据角度的分析
+\section{出租车数据分析}
+本节针对本文提出的三个假设，从数据角度予以论证。分别验证出租车行为与车辆状态，时间以及地理因素之间的关系。
 
+%验证1: 出租车状态对速度等的影响
+\subsection{出租车行为与出租车状态的关系}
+
+出租车行为可以由一个多元组表示，其中包括多个属性，常见的属性有速度，状态等。本节分析出租车的速度和状态持续时间随车辆状态的变化情况。
+
+如图\ref{figure_speed_distribution}所示的是空载和载客状态下每小时的平均速度情况。由图可以凌晨0点到4点车辆的速度明显低于载客状态下的速度，空载时的速度在$3km/h－20km/s$,而载客时的速度则为$20km/h－40km/h$.在这个时段里车流量上，载客时可以达到较高的车速，而空载时为了降低油耗，空载时司机多选择停靠在路边“等活”。
+在早上8点到12点的时段里，空载和载客时的平均速度类似，可能是由于这个时段的车流量的增加，出租车空载和载客时的运行速度都受到限制，而乘客变多，使得出租车空载时有了更多的载客机会，出租车司机会倾向于“扫活”，即沿着马路低速行驶或者快速移动到人群密集的区域。
+%图：空载和载客状态下每小时的平均速度
 \begin{figure}[ht]
 \centering
 \begin{tabular}
@@ -86,7 +94,10 @@
 \end{tabular}
 \caption{空载和载客状态下每小时的平均速度}\label{figure_avg_speed}
 \end{figure}
-\begin{figure}[ht]
+
+本文还选取了几个特定时间段，分析其车辆的空载和载客情况下的速度分布情况。
+%图：不同时间段，空载和载客状态下的速度分布情况
+\begin{figure}[!h]
 \centering
 \begin{tabular}
 [c]{cc}
@@ -107,6 +118,12 @@
 \caption{不同时间段，空载和载客状态下的速度分布情况}\label{figure_speed_distribution}
 \end{figure}
 
+图\ref{figure_speed_distribution}为在对应时间段车辆速度的累积分布情况。其中的一点$(x,y)$表示，速度瞬时速度小于$x~km/h$的速度记录占总数量的$y$.
+如图\ref{figure_speed_distribution}所示，载客状态下的速度分布情况与空载情况下的速度分布有较大不同。空载情况下，速度为0的情况达到了$50\%$,而载客情况下速度为0的情况占$25\%$.两者的分布曲线也有较大不同。
+
+
+%图：状态持续时长分布
+从经验来看，出租车司机为了提高收入应该尽可能的降低空载率，因此我们探究了载客持续时长和空载持续时长的情况。图\ref{figure_duration_for_each_status}为状态持续时长的分布情况。可以看出空车时的持续时长偏短，$80\%$的概率，持续时长小于1000秒，而$80\%$的载客时的持续时长小于等于1500秒。
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.5\textwidth]{figures/assumption/durationdis.eps}\\
@@ -115,9 +132,9 @@
 
 
 \subsection{随时间变化的事件分布}
+本节我们分析了每小时有多少载客和下客事件发生。每小时的事件数量变化如图\ref{figure_event_varied_w_t}所示，统计结果如表\ref{table_event_distribution_with_time}所示，可以看出一周内载客和下客总量分别为$2,679,385$和$2,707,290$, 两者相差不多。且其中的波峰和波谷的时间段也类似，波峰为11月4日的晚上7点到8点，波谷为11月3日的凌晨4点和5点。出现这样的结果与我们的日常生活经验吻合，因为载客和下客事件具有较强相关性的,两者应该保持动态平衡。同时，图\ref{figure_event_varied_w_t}表明波峰和波谷出现的时间段类似，客流量增加和减少表现出较强的规律性。
 
-
-\begin{figure}[ht]
+\begin{figure}[!h]
 \centering
 \includegraphics[width=0.65\textwidth]{figures/analysis/event_w_time.eps}\\
 \caption{Taxi event varied with time.}\label{figure_event_varied_w_t}
@@ -125,7 +142,7 @@
 
 
 
-\begin{table}[ht]
+\begin{table}[!h]
 \caption{随时间变化的事件数}\label{table_event_distribution_with_time}
 \centering
 \begin{tabular}{l|c|c}
@@ -144,11 +161,7 @@
 
 
 
-\begin{figure}[ht]
-\centering
-\fbox{\includegraphics[width=0.4\textwidth]{figures/map.eps}}\\
-\caption{抽取地图}\label{figure_map}
-\end{figure}
+
 
 
 \begin{figure}[ht]
@@ -162,11 +175,17 @@
 \epsfysize=2in\epsfbox{figures/analysis/hotspots/hotspot_load_19.eps} \\
 (c) load events at 4:00-5:00 & (d) load events at 19:00-20:00\\
 \end{tabular}
-\caption{Taxi density for load/drop events in one hour.}\label{figure_taxi_density_for_one_hour}
+\caption{一小时内，出租车上下客事件的发生密度}\label{figure_taxi_density_for_one_hour}
 \end{figure}
 
 
-\begin{figure}[ht]
+
+
+\subsection{出租车行为与地理因素之间的关系}
+
+本节主要验证假设出租车行为与地理因素具有显著关系,出租车的载客和下客事件的分布具有地理偏好。
+图\ref{figure_taxi_density_for_one_hour}
+\begin{figure}[!h]
 \centering
 \begin{tabular}
 [c]{cccc}
@@ -186,11 +205,33 @@
 \caption{出租车一小时内载客和下客事件的数量的区域分布}\label{figure_taxi_density_for_one_hour}
 \end{figure}
 
+图~\ref{figure_taxi_desity_for_one_hour} 在同一时间段内（19:00到20:00）表明载客/下客事件的热点区域(一小时内事件发生超过20次的区域)。我们选择了两个工作日和一个周末进行比较。通过比较载客和空载的热点，我们发现载客事件分布相对于空载事件比较平均。
+
+对于每种事件分布，热点区域的出现具有会重复出现，热点见图~\ref{figure_taxi_desity_for_one_hour}中红圈表明的地方。
+虽然工作日和周末的事件数有所变化，但是热点区域出现的地点还是类似的。
+这种现象的出现可能是由于载客事件主要分布在居民的家中，而下客地点更趋向于聚集在工作地点，地铁站或者风景区。
+ 
+ 总的来说，在每个网格内的载客和下客数量变现出地理特征:
+ \begin{itemize}
+  \item 事件分布不均匀，载客和下客事件的分布有所不同。
+  \item 对于某种状态，热点区域出现具有可重现性，在某些标志性区域（北京西站,国贸等地）重复出现。
+\end{itemize}
+
+综上所述，可以证明假设三具有一定的合理性，即出租车行为与地理因素有关。
+
 
 \section{建立模型}
 
 移动模型定义了节点的运动模式$Paths:<p_1,p_2…,p_n>$，$p_i$的确定可以简化为两步，即,目的地点选择和从源地点到目的地点的移动模式。
 目的地点选择：节点的目的选择也与节点的当前状态有关。若节点处于载客状态。若当前状态为载客状态：针对载客事件将区域划分为不同的子区域，同理由下客事件分布将区域划分为不同的子区域。计算由载客子区域到下客子区域的转移概率矩阵和距离范围。然后由节点当前位置，决定下客位置。同理，节点处于下客状态时，由当前位置，和区域转移矩阵也可以计算得到载客的目的节点。
+
+\subsection{地图抽取}
+
+\begin{figure}[!h]
+\centering
+\fbox{\includegraphics[width=0.4\textwidth]{figures/map.eps}}\\
+\caption{抽取地图}\label{figure_map}
+\end{figure}
 
 
 \subsection{区域定义与识别}
@@ -198,9 +239,6 @@
 
 \subsection{区域转移概率}
 \input{cpts/sects/model-region-trans}
-
-\subsection{时间建模}
-\input{cpts/sects/model-time}
 
 \subsection{速度建模}
 \input{cpts/sects/model-speed}

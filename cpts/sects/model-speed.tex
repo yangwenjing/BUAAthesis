@@ -1,1 +1,51 @@
-speed~
+\begin{figure}[!h]
+\centering
+\begin{tabular}
+[c]{cc}
+\multicolumn{2}{c}{6:00-8:00}\\
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed6_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed6_1.eps} \\
+\multicolumn{2}{c}{11:00-13:00}\\
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed11_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed11_1.eps} \\
+\multicolumn{2}{c}{17:00-19:00}\\
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed17_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed17_1.eps} \\
+\multicolumn{2}{c}{22:00-24:00}\\
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed22_0.eps} &
+\epsfysize=1.5in\epsfbox{figures/evalue/fitspeed22_1.eps} \\
+(a) vacant status & (b) occupied status \\
+\end{tabular}
+\caption{速度分布的拟合结果}\label{figure_fitspeed_varied_with_time}
+\end{figure}
+
+
+
+为了获取各个状态的速度分布，我们对瞬时速度的累积分布进行拟合，以获取瞬时速度的累积分布函数，然后衍生出其速度分布函数。
+由图\ref{figure_fitspeed_varied_with_time}可知，除了载客状态时从22:00-24:00的累积瞬时速度分布外，瞬时速度的累积分布表现出指数分布的规律，拟合函数记为$f_1(x)$。载客状态时从22:00-24:00的累积瞬时速度分布表现出线性分布的特性,其拟合函数记为$f_2(x)$, 如公式\ref{formular_ccdf_speed}。由分析过程可知，某些天，例如周末的某些时段会影响车辆的行为，我们仅分析最常见的情况，因此去掉了明显不一样的情况，例如周六和周天早上6点到8点时的载客状态的累积速度分布。
+
+\begin{equation}\label{formular_ccdf_speed}
+\left\{
+\begin{array}{ll}
+f_1(x) = 1-1/exp(-ax^b-c)\\
+f_2(x) = ax+b
+\end{array}
+\right.
+\end{equation}
+
+\begin{table}[ht]
+\caption{拟合参数以及拟合曲线的残差平方和}\label{table_rms}
+\centering
+\begin{tabular}{c|c|c}
+  \hline
+  时间段 & 空车状态 & 载客状态 \\
+  \hline
+6:00-8:00   &0.0129207 & 0.019818 \\
+11:00-13:00 &0.00866176 & 0.0204889 \\
+17:00-19:00 &0.0176578 & 0.0105868 \\
+22:00-24:00 &0.0154822 & 0.0240426 \\
+  \hline
+\end{tabular}
+\end{table}
+
+拟合结果以及相关的残差平方和(root mean square, rms)如表\ref{table_rms}所示，越小的残差平方和代表越小的误差。由表\ref{table_rms}可知，所有的残差平方和均小于$0.025$,表现出较好的拟合相似性。
