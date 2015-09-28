@@ -9,27 +9,6 @@
 为了验证模型的有效性，我们在仿真平台ONE（Oppor- tunistic Networking Environment）\cite{KeranenOtt-155}上扩展实现了出租车移动模型T-START. 本节将详细介绍出租车移动模型的实现方法和相关配置。
 <给出结构图>
 
-<给出仿真结果>
-
-\begin{figure}[ht]
-\centering
-\subfigure[Real Trace]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/real_traces.eps}}
-\subfigure[T-START]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/start_traces.eps}}
-\subfigure[SP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/sp_traces.eps}}
-\subfigure[RWP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/rwp_traces.eps}}
-\caption{模型生成的轨迹样例}\label{figure_tracesample}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\subfigure[Real Trace]{\includegraphics[width=0.24\textwidth]{figures/evalue/trace_nodedis.eps}}
-\subfigure[T-START]{\includegraphics[width=0.24\textwidth]{figures/evalue/start_nodedis.eps}}
-\subfigure[SP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sp_nodedis.eps}}
-\subfigure[RWP]{\includegraphics[width=0.24\textwidth]{figures/evalue/rwp_nodedis.eps}}
-\caption{模型节点分布快照}\label{figure_trace_snapshots}
-\end{figure}
-
-Trace samples and their node distribution snapshots from different mobility models are reported in Fig.~\ref{figure_tracesample} and Fig~\ref{figure_trace_snapshots}. Fig.~\ref{figure_tracesample} shows the trace in one day. The traces of the real data and T-START only cover some parts of the area, while the traces of SP and RWP almost go through the whole area. Recall that SP and RWP select a destination randomly in the area, while T-START takes the associations between current region and destinations into consideration (which satisfies the movement rules of taxis). In Fig.~\ref{figure_trace_snapshots}, real trace, T-START and SP exhibit the road structures, while the node distribution of RWP is much uniform. As to T-START, the destination section process decides that it tends to select a destination in the regions with higher load/drop event probability. Therefore, with the decline of the randomness, the snapshot of T-START becomes much clear and centralized on the main roads, which matches real traces very well.
 
 
 \section{实验配置和验证指标}
@@ -63,8 +42,32 @@ Trace samples and their node distribution snapshots from different mobility mode
 \end{table}
 我们随机选取了3000辆出租车作为对比对象。
 
+\section{节点分布和轨迹比较}
 %介绍RWP和SP
-\section{节点分布验证}
+
+为了对单个节点轨迹和整体的节点分布有一个较为直观的印象，我们探究了真实轨迹和三种移动模型的轨迹样例和节点分布情况。
+\begin{figure}[ht]
+\centering
+\subfigure[Real Trace]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/real_traces.eps}}
+\subfigure[T-START]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/start_traces.eps}}
+\subfigure[SP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/sp_traces.eps}}
+\subfigure[RWP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sample/rwp_traces.eps}}
+\caption{模型生成的轨迹样例}\label{figure_tracesample}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\subfigure[Real Trace]{\includegraphics[width=0.24\textwidth]{figures/evalue/trace_nodedis.eps}}
+\subfigure[T-START]{\includegraphics[width=0.24\textwidth]{figures/evalue/start_nodedis.eps}}
+\subfigure[SP]{\includegraphics[width=0.24\textwidth]{figures/evalue/sp_nodedis.eps}}
+\subfigure[RWP]{\includegraphics[width=0.24\textwidth]{figures/evalue/rwp_nodedis.eps}}
+\caption{模型节点分布快照}\label{figure_trace_snapshots}
+\end{figure}
+
+真实轨迹，T-START, SP和RWP的轨迹样例和节点分布快照如图~\ref{figure_trace_snapshots}. Fig.~\ref{figure_tracesample}所示. 由于T-START和SP轨迹都是基于地图的，其轨迹样例都在道路上，因此在轨迹和节点分布上可以体现出实际的道路轮廓. 对于其节点分布，实际轨迹较为集中在地图的上半部分，其地区分布的不均匀特征较为明显。而对于T-START和SP则是比较分散在整个区域。由于T-START采用概率转移矩阵来确定节点的目的点，因此在在下半部分的节点也相对稀疏。而SP采用随机的方式，可以看出图中节点主要集中在中间位置。RWP则是在整个区域内，相对均匀的分布。
+
+%节点出入度
+\section{节点出入度验证}
 
 节点分布对交通和网络性能仿真有十分重要的影响，很好的理解其节点分布规律能帮助到巡经和拥塞控制。然而节点的动态性导致了节点分布的动态性，为了量化节点分布的变化，我们引入了出入度的概念。出入度指出了在一段时间内有多少出租车驶入或驶出区域。我们将整个仿真区域划分为$400m \times 400m$的网格来探究每个网格中的出入度。时间区间为两小时，即其仿真时间为2小时。实际轨迹数据为2011年11月8日的轨迹数据。
 
@@ -220,4 +223,54 @@ item& 1th&2th&3th&4th&5th&6th&7th\\
 
 综上所述，T-START从直观角度，节点分布较为分散与实际轨迹比较接近，而SP则比较集中于中心部分，RWP的出入度分布在整个区域内比较集中。通过量化相对于均值的出入度可以看出，每天的出入度相对于网格均值的出入度的相对误差均保持在$9\%-20\%$的较低水平上，11月8日相对于前7天的均值夜较小，因此可以将前7天的出入度的均值矩阵作为对照。实验结果表明T-START具有与均值矩阵较小的相对误差,相对于SP移动模型相对误差减小$15\%-20\%$
 \section{接触验证}
+
+\begin{figure}[!h]
+\centering
+\subfigure[6:00-8:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/6ct.eps}
+}
+\subfigure[11:00-13:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/11ct.eps}
+}
+\subfigure[17:00-19:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/17ct.eps}
+}
+\subfigure[22:00-24:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/22ct.eps}
+}
+\caption{接触时间累积分布}\label{figure_ct}
+\end{figure}
+
+
+\begin{figure}[!h]
+\centering
+\subfigure[6:00-8:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/6ict.eps}
+}
+\subfigure[11:00-13:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/11ict.eps}
+}
+\subfigure[17:00-19:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/17ict.eps}
+}
+\subfigure[22:00-24:00]{
+\includegraphics[width=0.4\textwidth]{figures/evalue/contact/22ict.eps}
+}
+\caption{接触间隔时间累积分布}\label{figure_ict}
+\end{figure}
+
+车辆间的接触时间和接触间隔时间做为另一个验证指标来验证和真实轨迹的相似度。
+图~\ref{figure_ct}表示四个时间段内的接触时间的累积分布，可以发现在四个时间段中，T-START的接触时间分布和实际的接触时间分布。T-START和实际轨迹的接触时间都偏小，例如，在早上6点到8点，有$90\%$的接触时间小于20秒。而SP和RWP比较相似，可能是由于两者的下一跳的选择都是随机的，因此会增加其接触机会。
+
+对于接触间隔时间累积分布如图~\ref{figure_ict}所示，对于早上6点到8点，实际轨迹$90\%$的接触间隔时间小于1000秒，对于早上11点到13点，$80\%$的接触间隔时间小于1000秒。而SP和RWP的接触间隔时间偏长,大于$40\%$的接触间隔时间大于1000秒。由于RWP的接触间隔时间较少，因此其接触间隔时间累积分布不太光滑。
+
+由接触时间和接触间隔时间角度，可以看出T-START和实际轨迹的累积分布最为相似。T-START的利用从实际轨迹中抽取的区域转移概率确定目的点，SP虽然利用了实际的地图数据和平均速度，但是SP的目的选择是随机的，影响到其接触特性。
+
+综上，从接触角度，T-START与实际轨迹在接触时间和接触间隔时间角度具有较好的相似性，且优于SP和RWP移动模型。
 \section{本章小结}
+
+本章根据之前的模型设计，结合仿真平台对所提出的基于海量交通数据的出租车移动模型进行了编码实现，并给出了真实轨迹和T-START,SP,RWP移动模型的轨迹样例和节点分布快照，并利用仿真平台对协议的性能进行了仿真验证，对比其与实际轨迹在出入度和接触的相似性。在区域的出入度指标方面，以前7天的区域出入度均值矩阵作为对照，第8天(11月8日)与对照的相对误误差较小，T-START的相对误差低于$50\%$,相对于SP和RWP，相对误差减小了$15\%$.
+在接触方面，T-START与实际轨迹具有较好的相似性，明显优于其他两种移动模型。
+
+综上所述，T-START与其他模型比较，在节点出入度和接触等方面具有较好的真实性，将有助于交通寻径与控制和车辆通信协议验证等方面的仿真研究。
+
